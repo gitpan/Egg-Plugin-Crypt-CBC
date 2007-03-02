@@ -1,0 +1,8 @@
+Revision history for Perl extension Egg::Plugin::Crypt::CBC.
+
+0.03  2007/03/02
+	- It improved to CPAN.
+
+0.01  Sat Dec 23 08:52:23 2006 GMT
+	- original version; created by Egg::Helper::PerlModuleMaker v0.02 with
+	  module name Egg-Plugin-Crypt-CBC

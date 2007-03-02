@@ -1,0 +1,18 @@
+abstract: The encryption is supported.
+author: Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
+build_requires: 
+  Test::More: 0
+  Test::Pod: 0
+distribution_type: module
+generated_by: Module::Install version 0.64
+license: perl
+name: Egg-Plugin-Crypt-CBC
+no_index: 
+  directory: 
+    - inc
+    - t
+requires: 
+  Crypt::Blowfish: 0
+  Crypt::CBC: 0
+  Egg::Release: 1.13
+version: 0.03
