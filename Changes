@@ -1,5 +1,8 @@
 Revision history for Perl extension Egg::Plugin::Crypt::CBC.
 
+0.04  2007/03/25
+	- Maintenance release for Pod coverage.
+
 0.03  2007/03/02
 	- It improved to CPAN.
 

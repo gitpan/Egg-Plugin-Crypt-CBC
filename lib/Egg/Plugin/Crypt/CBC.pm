@@ -3,13 +3,13 @@ package Egg::Plugin::Crypt::CBC;
 # Copyright (C) 2006 Bee Flag, Corp, All Rights Reserved.
 # Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: CBC.pm 274 2007-03-02 14:21:10Z lushe $
+# $Id: CBC.pm 66 2007-03-25 10:52:13Z lushe $
 #
 use strict;
 use MIME::Base64;
 use Crypt::CBC;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub setup {
 	my($e)= @_;
@@ -105,23 +105,36 @@ Please see the manual of L<Crypt::CBC> in detail.
 
 =head1 METHODS
 
-=head2 $e->cbc([OPTION]);
+=over 4
+
+=item setup
+
+It is a method for the start preparation that is called from the controller of 
+the project. * Do not call it from the application.
+
+=back
+
+=head2 cbc ([OPTION]);
 
 Crypt::CBC object is returned.
 
 When the option is passed, the default value of the setting is overwrited.
 
-=head2 $e->cbc_encode([PLAIN_TEXT], [CBC_OBJECT]);
+=head2 cbc_encode ([PLAIN_TEXT], [CBC_OBJECT]);
 
 [PLAIN_TEXT] is encrypted.
 
 When [PLAIN_TEXT] is omitted, $e->cbc is used. 
 
-=head2 $e->cbc_decode([CIPHERTEXT], [CBC_OBJECT]);
+=head2 cbc_decode ([CIPHERTEXT], [CBC_OBJECT]);
 
 [CIPHERTEXT] is decrypted.
 
 When [CIPHERTEXT] is omitted, $e->cbc is used. 
+
+=head2 reset_cbc
+
+The object generated to the cbc method is initialized.
 
 =head1 SEE ALSO
 
