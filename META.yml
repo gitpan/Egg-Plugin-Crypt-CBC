@@ -15,4 +15,4 @@ requires:
   Crypt::Blowfish: 0
   Crypt::CBC: 0
   Egg::Release: 1.13
-version: 0.04
+version: 0.05

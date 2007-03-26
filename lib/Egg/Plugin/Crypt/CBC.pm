@@ -9,7 +9,7 @@ use strict;
 use MIME::Base64;
 use Crypt::CBC;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub setup {
 	my($e)= @_;
