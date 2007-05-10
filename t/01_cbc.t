@@ -1,30 +1,25 @@
-package EggTest;
-use strict;
+
 use Test::More tests => 9;
-use base qw/Egg::Plugin::Crypt::CBC/;
-use Class::C3;
+use Egg::Helper::VirtualTest;
 
-my %config= (
-  plugin_crypt_cbc=> {
-    cipher=> 'Blowfish',
-    key   => '(abcdef)',
-    },
-  );
-my $e= bless {}, __PACKAGE__;
+my $t= Egg::Helper::VirtualTest->new( prepare=> {
+  controller => { egg_includes => [qw/ Crypt::CBC /] },
+  config => { plugin_crypt_cbc=> {
+    cipher => 'Blowfish',
+    key    => '(abcdef)',
+    } },
+  });
 
-__PACKAGE__->setup($e);
+my $e= $t->egg_pcomp_context;
 
 my $plain_text= 'secret text';
 
-ok( my $cbc= $e->cbc );
-ok( my $secret= $cbc->encrypt($plain_text) );
-ok( $secret ne $plain_text );
-ok( my $decrypt= $cbc->decrypt($secret) );
-ok( $plain_text eq $decrypt );
-ok( $secret= $e->cbc_encode($plain_text) );
-ok( $secret ne $plain_text );
-ok( $decrypt= $e->cbc_decode($secret) );
-ok( $plain_text eq $decrypt );
-
-sub config { \%config }
-sub setup  { \%config }
+ok my $cbc= $e->cbc;
+ok my $secret= $cbc->encrypt($plain_text);
+ok $secret ne $plain_text;
+ok my $decrypt= $cbc->decrypt($secret);
+ok $plain_text eq $decrypt;
+ok $secret= $e->cbc->encode($plain_text);
+ok $secret ne $plain_text;
+ok $decrypt= $e->cbc->decode($secret);
+ok $plain_text eq $decrypt;

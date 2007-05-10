@@ -1,8 +1,10 @@
-abstract: The encryption is supported.
+abstract: Crypt::CBC for Egg Plugin.
 author: Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 build_requires: 
-  Test::More: 0
+  Test::Perl::Critic: 0
   Test::Pod: 0
+  Test::Pod::Coverage: 0
+  Test::Simple: 0
 distribution_type: module
 generated_by: Module::Install version 0.64
 license: perl
@@ -12,7 +14,7 @@ no_index:
     - inc
     - t
 requires: 
-  Crypt::Blowfish: 0
-  Crypt::CBC: 0
-  Egg::Release: 1.13
-version: 0.05
+  Crypt::Blowfish: 2.1
+  Crypt::CBC: 2.22
+  Egg::Release: 2
+version: 2.00

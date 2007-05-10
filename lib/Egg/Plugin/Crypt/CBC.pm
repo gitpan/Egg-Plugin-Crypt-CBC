@@ -1,148 +1,163 @@
 package Egg::Plugin::Crypt::CBC;
-#
-# Copyright (C) 2006 Bee Flag, Corp, All Rights Reserved.
-# Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
-#
-# $Id: CBC.pm 66 2007-03-25 10:52:13Z lushe $
-#
-use strict;
-use MIME::Base64;
-use Crypt::CBC;
-
-our $VERSION = '0.05';
-
-sub setup {
-	my($e)= @_;
-	my $config= $e->config->{plugin_crypt_cbc}
-	 || Egg::Error->throw(q/Please setup 'plugin_crypt_cbc'./);
-	$config->{cipher}
-	 || Egg::Error->throw(q/Please setup 'plugin_crypt_cbc->{cipher}'./);
-	$config->{key}
-	 || Egg::Error->throw(q/Please setup 'plugin_crypt_cbc->{key}'./);
-	$config->{iv}      ||= '$KJh#(}q';
-	$config->{padding} ||= 'standard';
-	$config->{prepend_iv}= 0 unless exists($config->{prepend_iv});
-	$config->{regenerate_key}= 1 unless exists($config->{regenerate_key});
-	$e->next::method;
-}
-sub cbc {
-	$_[0]->{cbc} ||= do {
-		my $e= shift;
-		my %options= %{$e->config->{plugin_crypt_cbc}};
-		if (@_) {
-			my $opt= ref($_[0]) ? $_[0]: {@_};
-			@options{keys %$opt}= values %$opt;
-		}
-		Crypt::CBC->new(\%options);
-	  };
-}
-sub cbc_encode {
-	my $e    = shift;
-	my $plain= shift || return "";
-	my $cbc  = shift || $e->cbc;
-	my $crypt= encode_base64($cbc->encrypt($plain));
-	$crypt=~tr/\r\n\t//d;
-	$crypt || "";
-}
-sub cbc_decode {
-	my $e    = shift;
-	my $crypt= shift || return "";
-	my $cbc  = shift || $e->cbc;
-	$cbc->decrypt(decode_base64($crypt)) || "";
-}
-sub reset_cbc {
-	undef($_[0]->{cbc});
-	$_[0]->cbc;
-}
-
-1;
-
-__END__
 
 =head1 NAME
 
-Egg::Plugin::Crypt::CBC - The encryption is supported.
+Egg::Plugin::Crypt::CBC - Crypt::CBC for Egg Plugin.
 
 =head1 SYNOPSIS
 
-  package [MYPROJECT];
-  use strict;
-  use Egg qw/Crypt::CBC/;
-
-Configuration is setup.
-
-  plugin_crypt_cbc=> {
-    cipher=> 'Blowfish',
-    key   => 'uniqueid',
-    ...
-    },
-
-* The setting is an option to pass to L<Crypt::CBC>.
-
-Example of code.
-
-  my $plain= 'secret text';
+  use Egg qw/ Crypt::CBC /;
   
-  my $secret= $e->cbc_encode( $plain );
+  __PACKAGE__->egg_startup(
+   .....
+   ...
   
-  print $e->cbc_decode( $secret ); # decrypts it.
+   plugin_crypt_cbc => {
+     cipher=> 'Blowfish',
+     key   => 'uniqueid',
+     ...
+     },
+  
+   );
+
+  # The text is encrypted.
+  my $crypt= $e->cbc->encode($text);
+  
+  # The code end text is decrypted.
+  my $plain= $e->cbc->decode($crypt);
+  
+  # The cbc object is acquired in an arbitrary option.
+  my $cbc= $e->cbc( cipher => 'DES' );
 
 =head1 DESCRIPTION
 
-It is necessary to install the module corresponding to the code form
- specified for 'B<cipher>' beforehand.
+It is a plugin to use the code and decoding by L<Crypt::CBC>.
 
-For instance, please specify it by installing the following modules.
+=head1 CONFIGURATION
 
-L<Crypt::Blowfish>,
-L<Crypt::DES>,
-L<Crypt::IDEA>,
-L<Crypt::RSA>,
-etc...
+HASH is defined in 'plugin_crypt_cbc' key and it sets it.
 
-This module is wrapper of L<Crypt::CBC>.
-Please see the manual of L<Crypt::CBC> in detail.
+The setting is an option to pass everything to L<Crypt::CBC>.
+
+Please refer to the document of L<Crypt::CBC> for details.
+
+=head2 cipher
+
+The exception is generated in case of undefined.
+
+=head2 key
+
+The exception is generated in case of undefined.
+
+=head2 iv
+
+'$KJh#(}q' is provisionally defined in case of undefined.
+
+Please define it.
+
+=head2 padding
+
+Default is 'standard'.
+
+=head2 prepend_iv
+
+Default is 0.
+
+=head2 regenerate_key
+
+Default is 1.
+
+=cut
+use strict;
+use warnings;
+
+our $VERSION = '2.00';
+
+sub _setup {
+	my($e)= @_;
+	my $conf= $e->config->{plugin_crypt_cbc} ||= {};
+
+	$conf->{cipher}  || die q{ Please setup 'plugin_crypt_cbc->{cipher}'. };
+	$conf->{key}     || die q{ Please setup 'plugin_crypt_cbc->{key}'. };
+	$conf->{iv}      ||= '$KJh#(}q';
+	$conf->{padding} ||= 'standard';
+	$conf->{prepend_iv}= 0 unless exists($conf->{prepend_iv});
+	$conf->{regenerate_key}= 1 unless exists($conf->{regenerate_key});
+
+	$e->next::method;
+}
 
 =head1 METHODS
 
-=over 4
+=head2 cbc ( [OPTION_HASH] )
 
-=item setup
+The handler object of this plugin is returned.
 
-It is a method for the start preparation that is called from the controller of 
-the project. * Do not call it from the application.
+It turns by using the same object when the object is generated once usually.
+When OPTION_HASH is given, it tries to generate the object newly.
 
-=back
+=cut
+sub cbc {
+	my $e= shift;
+	@_ ? ($e->{crypt_cbc}= Egg::Plugin::Crypt::CBC::handler->new($e, @_))
+	   : ($e->{crypt_cbc} ||= Egg::Plugin::Crypt::CBC::handler->new($e))
+}
 
-=head2 cbc ([OPTION]);
+package Egg::Plugin::Crypt::CBC::handler;
+use strict;
+use warnings;
+use MIME::Base64;
+use base qw/Crypt::CBC/;
 
-Crypt::CBC object is returned.
+=head1 HANDLER METHODS
 
-When the option is passed, the default value of the setting is overwrited.
+The handler object has succeeded to L<Crypt::CBC>.
 
-=head2 cbc_encode ([PLAIN_TEXT], [CBC_OBJECT]);
+=head1 new
 
-[PLAIN_TEXT] is encrypted.
+Constructor.
 
-When [PLAIN_TEXT] is omitted, $e->cbc is used. 
+=cut
+sub new {
+	my($class, $e)= splice @_, 0, 2;
+	my %option= (
+	  %{$e->config->{plugin_crypt_cbc}},
+	  %{ $_[1] ? {@_}: ($_[0] || {}) },
+	  );
+	$class->SUPER::new(\%option);
+}
 
-=head2 cbc_decode ([CIPHERTEXT], [CBC_OBJECT]);
+=head1 encode ( [PLAIN_TEXT] )
 
-[CIPHERTEXT] is decrypted.
+After PLAIN_TEXT is encrypted, the Base64 encode text is returned.
 
-When [CIPHERTEXT] is omitted, $e->cbc is used. 
+  my $crypt_text= $e->cbc->encode( 'plain text' );
 
-=head2 reset_cbc
+=cut
+sub encode {
+	my $self = shift;
+	my $plain= shift || return "";
+	my $crypt= encode_base64( $self->encrypt($plain) );
+	$crypt=~tr/\r\n\t//d;
+	$crypt || "";
+}
 
-The object generated to the cbc method is initialized.
+=head1 decode ( [CRYPT_TEXT] )
+
+The text encrypted by 'encode' method is made to the compound and returned.
+
+  my $plain_text= $e->cbc->decode( 'crypt text' );
+
+=cut
+sub decode {
+	my $self = shift;
+	my $crypt= shift || return "";
+	$self->decrypt( decode_base64($crypt) ) || "";
+}
 
 =head1 SEE ALSO
 
 L<Crypt::CBC>,
-L<Crypt::DES>,
-L<Crypt::IDEA>,
-L<Crypt::RSA>,
-L<Crypt::Blowfish>,
 L<Egg::Release>,
 
 =head1 AUTHOR
@@ -151,7 +166,7 @@ Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 by Bee Flag, Corp. E<lt>L<http://egg.bomcity.com/>E<gt>, All Rights Reserved.
+Copyright (C) 2007 by Bee Flag, Corp. E<lt>L<http://egg.bomcity.com/>E<gt>, All Rights Reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.6 or,
@@ -159,3 +174,4 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
+1;
