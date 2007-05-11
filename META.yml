@@ -17,4 +17,4 @@ requires:
   Crypt::Blowfish: 2.1
   Crypt::CBC: 2.22
   Egg::Release: 2
-version: 2.00
+version: 2.01
