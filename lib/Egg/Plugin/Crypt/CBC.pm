@@ -1,4 +1,13 @@
 package Egg::Plugin::Crypt::CBC;
+#
+# Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
+#
+# $Id: CBC.pm 205 2007-11-03 13:57:38Z lushe $
+#
+use strict;
+use warnings;
+
+our $VERSION = '2.02';
 
 =head1 NAME
 
@@ -67,11 +76,36 @@ Default is 0.
 
 Default is 1.
 
-=cut
-use strict;
-use warnings;
+=head1 METHODS
 
-our $VERSION = '2.01';
+=head2 cbc ( [OPTION_HASH] )
+
+The handler object of this plugin is returned.
+
+It turns by using the same object when the object is generated once usually.
+When OPTION_HASH is given, it tries to generate the object newly.
+
+=head1 HANDLER METHODS
+
+The handler object has succeeded to L<Crypt::CBC>.
+
+=head1 new
+
+Constructor.
+
+=head1 encode ( [PLAIN_TEXT] )
+
+After PLAIN_TEXT is encrypted, the Base64 encode text is returned.
+
+  my $crypt_text= $e->cbc->encode( 'plain text' );
+
+=head1 decode ( [CRYPT_TEXT] )
+
+The text encrypted by 'encode' method is made to the compound and returned.
+
+  my $plain_text= $e->cbc->decode( 'crypt text' );
+
+=cut
 
 sub _setup {
 	my($e)= @_;
@@ -86,17 +120,6 @@ sub _setup {
 
 	$e->next::method;
 }
-
-=head1 METHODS
-
-=head2 cbc ( [OPTION_HASH] )
-
-The handler object of this plugin is returned.
-
-It turns by using the same object when the object is generated once usually.
-When OPTION_HASH is given, it tries to generate the object newly.
-
-=cut
 sub cbc {
 	my $e= shift;
 	@_ ? ($e->{crypt_cbc}= Egg::Plugin::Crypt::CBC::handler->new($e, @_))
@@ -109,15 +132,6 @@ use warnings;
 use MIME::Base64;
 use base qw/Crypt::CBC/;
 
-=head1 HANDLER METHODS
-
-The handler object has succeeded to L<Crypt::CBC>.
-
-=head1 new
-
-Constructor.
-
-=cut
 sub new {
 	my($class, $e)= splice @_, 0, 2;
 	my %option= (
@@ -126,14 +140,6 @@ sub new {
 	  );
 	$class->SUPER::new(\%option);
 }
-
-=head1 encode ( [PLAIN_TEXT] )
-
-After PLAIN_TEXT is encrypted, the Base64 encode text is returned.
-
-  my $crypt_text= $e->cbc->encode( 'plain text' );
-
-=cut
 sub encode {
 	my $self = shift;
 	my $plain= shift || return "";
@@ -141,14 +147,6 @@ sub encode {
 	$crypt=~tr/\r\n\t//d;
 	$crypt || "";
 }
-
-=head1 decode ( [CRYPT_TEXT] )
-
-The text encrypted by 'encode' method is made to the compound and returned.
-
-  my $plain_text= $e->cbc->decode( 'crypt text' );
-
-=cut
 sub decode {
 	my $self = shift;
 	my $crypt= shift || return "";

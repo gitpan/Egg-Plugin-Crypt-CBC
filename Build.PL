@@ -13,10 +13,10 @@ my $builder = Module::Build->new(
     'Crypt::CBC'      => 2.22,
     'Crypt::Blowfish' => 2.10,
 
-    'Test::Simple'          => 0,
-    'Test::Pod'             => 0,
-    'Test::Perl::Critic'    => 0,
-    'Test::Pod::Coverage'   => 0,
+    'Test::More'           => 0,
+    'Test::Pod'            => 0,
+    'Test::Perl::Critic'   => 0,
+    'Test::Pod::Coverage'  => 0,
     },
 
   );

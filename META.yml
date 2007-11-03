@@ -1,20 +1,27 @@
-abstract: Crypt::CBC for Egg Plugin.
-author: Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
-build_requires: 
-  Test::Perl::Critic: 0
-  Test::Pod: 0
-  Test::Pod::Coverage: 0
-  Test::Simple: 0
-distribution_type: module
-generated_by: Module::Install version 0.64
-license: perl
+---
 name: Egg-Plugin-Crypt-CBC
-no_index: 
-  directory: 
-    - inc
-    - t
-requires: 
+version: 2.02
+author:
+  - 'Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>'
+abstract: Crypt::CBC for Egg Plugin.
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
   Crypt::Blowfish: 2.1
   Crypt::CBC: 2.22
   Egg::Release: 2
-version: 2.01
+  Test::More: 0
+  Test::Perl::Critic: 0
+  Test::Pod: 0
+  Test::Pod::Coverage: 0
+provides:
+  Egg::Plugin::Crypt::CBC:
+    file: lib/Egg/Plugin/Crypt/CBC.pm
+    version: 2.02
+  Egg::Plugin::Crypt::CBC::handler:
+    file: lib/Egg/Plugin/Crypt/CBC.pm
+generated_by: Module::Build version 0.2805
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2

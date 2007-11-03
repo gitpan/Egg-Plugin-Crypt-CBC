@@ -10,7 +10,7 @@ requires 'Egg::Release'    => 2.00;
 requires 'Crypt::CBC'      => 2.22;
 requires 'Crypt::Blowfish' => 2.10;
 
-build_requires 'Test::Simple';
+build_requires 'Test::More';
 build_requires 'Test::Pod';
 build_requires 'Test::Perl::Critic';
 build_requires 'Test::Pod::Coverage';
