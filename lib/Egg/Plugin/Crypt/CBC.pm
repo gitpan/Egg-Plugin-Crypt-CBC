@@ -2,12 +2,62 @@ package Egg::Plugin::Crypt::CBC;
 #
 # Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: CBC.pm 205 2007-11-03 13:57:38Z lushe $
+# $Id: CBC.pm 294 2008-02-28 13:51:13Z lushe $
 #
 use strict;
 use warnings;
 
-our $VERSION = '2.02';
+our $VERSION = '3.00';
+
+sub _setup {
+	my($e)= @_;
+	my $conf= $e->config->{plugin_crypt_cbc} ||= {};
+
+	$conf->{cipher}  || die q{ Please setup 'plugin_crypt_cbc->{cipher}'. };
+	$conf->{key}     || die q{ Please setup 'plugin_crypt_cbc->{key}'. };
+	$conf->{iv}      ||= '$KJh#(}q';
+	$conf->{padding} ||= 'standard';
+	$conf->{prepend_iv}= 0 unless exists($conf->{prepend_iv});
+	$conf->{regenerate_key}= 1 unless exists($conf->{regenerate_key});
+
+	$e->next::method;
+}
+sub cbc {
+	my $e= shift;
+	@_ ? ($e->{crypt_cbc}= Egg::Plugin::Crypt::CBC::handler->new($e, @_))
+	   : ($e->{crypt_cbc} ||= Egg::Plugin::Crypt::CBC::handler->new($e))
+}
+
+package Egg::Plugin::Crypt::CBC::handler;
+use strict;
+use warnings;
+use MIME::Base64;
+use base qw/Crypt::CBC/;
+
+sub new {
+	my($class, $e)= splice @_, 0, 2;
+	my %option= (
+	  %{$e->config->{plugin_crypt_cbc}},
+	  %{ $_[1] ? {@_}: ($_[0] || {}) },
+	  );
+	$class->SUPER::new(\%option);
+}
+sub encode {
+	my $self = shift;
+	my $plain= shift || return "";
+	my $crypt= encode_base64( $self->encrypt($plain) );
+	$crypt=~tr/\r\n\t//d;
+	$crypt || "";
+}
+sub decode {
+	my $self = shift;
+	my $crypt= shift || return "";
+	$self->decrypt( decode_base64($crypt) ) || "";
+}
+
+1;
+
+__END__
 
 =head1 NAME
 
@@ -105,66 +155,18 @@ The text encrypted by 'encode' method is made to the compound and returned.
 
   my $plain_text= $e->cbc->decode( 'crypt text' );
 
-=cut
-
-sub _setup {
-	my($e)= @_;
-	my $conf= $e->config->{plugin_crypt_cbc} ||= {};
-
-	$conf->{cipher}  || die q{ Please setup 'plugin_crypt_cbc->{cipher}'. };
-	$conf->{key}     || die q{ Please setup 'plugin_crypt_cbc->{key}'. };
-	$conf->{iv}      ||= '$KJh#(}q';
-	$conf->{padding} ||= 'standard';
-	$conf->{prepend_iv}= 0 unless exists($conf->{prepend_iv});
-	$conf->{regenerate_key}= 1 unless exists($conf->{regenerate_key});
-
-	$e->next::method;
-}
-sub cbc {
-	my $e= shift;
-	@_ ? ($e->{crypt_cbc}= Egg::Plugin::Crypt::CBC::handler->new($e, @_))
-	   : ($e->{crypt_cbc} ||= Egg::Plugin::Crypt::CBC::handler->new($e))
-}
-
-package Egg::Plugin::Crypt::CBC::handler;
-use strict;
-use warnings;
-use MIME::Base64;
-use base qw/Crypt::CBC/;
-
-sub new {
-	my($class, $e)= splice @_, 0, 2;
-	my %option= (
-	  %{$e->config->{plugin_crypt_cbc}},
-	  %{ $_[1] ? {@_}: ($_[0] || {}) },
-	  );
-	$class->SUPER::new(\%option);
-}
-sub encode {
-	my $self = shift;
-	my $plain= shift || return "";
-	my $crypt= encode_base64( $self->encrypt($plain) );
-	$crypt=~tr/\r\n\t//d;
-	$crypt || "";
-}
-sub decode {
-	my $self = shift;
-	my $crypt= shift || return "";
-	$self->decrypt( decode_base64($crypt) ) || "";
-}
-
 =head1 SEE ALSO
 
-L<Crypt::CBC>,
 L<Egg::Release>,
+L<Crypt::CBC>,
 
 =head1 AUTHOR
 
 Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by Bee Flag, Corp. E<lt>L<http://egg.bomcity.com/>E<gt>, All Rights Reserved.
+Copyright (C) 2008 Bee Flag, Corp. E<lt>L<http://egg.bomcity.com/>E<gt>, All Rights Reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.6 or,
@@ -172,4 +174,3 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
-1;
