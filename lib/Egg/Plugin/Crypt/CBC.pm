@@ -2,12 +2,12 @@ package Egg::Plugin::Crypt::CBC;
 #
 # Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: CBC.pm 294 2008-02-28 13:51:13Z lushe $
+# $Id: CBC.pm 318 2008-04-17 12:17:01Z lushe $
 #
 use strict;
 use warnings;
 
-our $VERSION = '3.00';
+our $VERSION = '3.01';
 
 sub _setup {
 	my($e)= @_;

@@ -21,19 +21,6 @@ To install this module type the following:
    make test
    make install
 
-   or
-
-   perl Build.PL
-   ./Build
-   ./Build test
-   ./Build install
-
-DEPENDENCIES
-
-This module requires these other modules and libraries:
-
-  blah blah blah
-
 AUTHOR
 
 Masatoshi Mizuno E<lt>mizunoE<64>bomcity.comE<gt>

@@ -1,5 +1,11 @@
 Revision history for Perl extension Egg::Plugin::Crypt::CBC.
 
+3.01  2008/04/17
+	- Build.PL is abolished.
+
+3.00  2008/02/24
+	- Corresponded to Egg::Release v3.00.
+
 2.00  2007/05/03
 	- Corresponded to Egg::Release v2.00.
 
